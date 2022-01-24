@@ -1,0 +1,1 @@
+az deployment group create -g bicep --template-file .\deploy.bicep --parameters .\parameters.json -cn
