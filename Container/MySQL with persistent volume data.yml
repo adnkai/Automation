@@ -1,0 +1,43 @@
+apiVersion: '2019-12-01'
+location: westeurope
+name: CONTAINER_INSTANCE_NAME
+properties:
+  containers:
+  - name: mysql-dev
+    properties:
+      environmentVariables:
+      - name: 'MYSQL_DATABASE'
+        value: 'db'
+      - name: 'MYSQL_USER'
+        secureValue: 'user'
+      - name: 'MYSQL_PASSWORD'
+        secureValue: 'password'
+      - name: 'MYSQL_ROOT_PASSWORD'
+        secureValue: 'password'
+      - name: 'socket' 
+        value: '/mysqld' # Socket needs to run in another path as we're overwriting /var/lib/mysql
+      image: mysql:5.7
+      ports:
+      - port: 3306
+      resources:
+        requests:
+          cpu: 1
+          memoryInGB: 2
+      volumeMounts:
+      - mountPath: /var/lib/mysql
+        name: dataVolume
+  osType: Linux
+  restartPolicy: Always
+  ipAddress:
+    ports: 
+      - port: 3306
+    type: Public
+    dnsNameLabel: DNS_NAME_LABEL
+  volumes:
+  - name: dataVolume
+    azureFile: 
+      sharename: SHARE_NAME
+      storageAccountName: STORAGE_ACCOUNT_NAME
+      storageAccountKey: STORAGE_ACCOUNT_KEY
+tags: {}
+type: Microsoft.ContainerInstance/containerGroups

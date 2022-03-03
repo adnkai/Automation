@@ -13,11 +13,13 @@ param storageName string
 @description('Provide a location.')
 param location string = 'germanywestcentral'
 
-param storagecount int = 2
+param storagecount int = 5
 
 param storageNames array = [
   'contosokr'
   'fabrikamkr'
+  'fabrikamkr2'
+  'fabrikamkr3'
 ]
 
 param storageDetails array = [
@@ -34,8 +36,6 @@ param storageDetails array = [
     kind: 'BlobStorage'
   }
 ]
-
-
 
 // vnet - why not?
 resource virtualNetwork 'Microsoft.Network/virtualNetworks@2019-11-01' = {
