@@ -1,0 +1,75 @@
+apiVersion: '2019-12-01'
+location: germanywestcentral
+name: CONTAINER_GROUP_NAME # replace with container group name (both containers will be created within a single Container Instance)
+properties:
+  containers:
+  - name: mysql-dev # name of mysql container
+    properties:
+      environmentVariables:
+      - name: 'MYSQL_DATABASE'
+        value: 'wordpress'
+      #- name: 'MYSQL_USER'
+      #  value: 'user'
+      #- name: 'MYSQL_PASSWORD'
+      #  secureValue: 'password'
+      - name: 'MYSQL_ROOT_PASSWORD'
+        secureValue: 'password'
+      - name: 'socket' 
+        value: '/mysqld' # Socket needs to run in another path as we're overwriting /var/lib/mysql
+      image: mysql:5.7
+      ports:
+      - port: 3306 # closed from the internet. Check below (ipaddress) to open this port externally
+      resources:
+        requests:
+          cpu: 1
+          memoryInGB: 2
+      volumeMounts:
+      - mountPath: /var/lib/mysql
+        name: datavolumemysql # Name of the data volume (Azure File Share Volume)
+  - name: wordpress-dev # name of wordpress container
+    properties:
+      environmentVariables:
+      - name: 'WORDPRESS_DB_NAME'
+        value: 'wordpress'
+      - name: 'WORDPRESS_DB_USER'
+        value: 'root'
+      - name: 'WORDPRESS_DB_PASSWORD'
+        secureValue: 'password'
+      - name: 'WORDPRESS_DB_HOST'
+        value: '127.0.0.1:3306'
+      image: wordpress
+      ports:
+      - port: 80
+      - port: 443
+      resources:
+        requests:
+          cpu: 2
+          memoryInGB: 2
+      volumeMounts:
+      - mountPath: /var/www/html/wp-content
+        name: datavolumewordpress # Name of the data volume (Azure File Share Volume)
+  osType: Linux
+  restartPolicy: Always
+  ipAddress:
+    ports: 
+      - port: 80
+        protocol: tcp
+      - port: 443
+        protocol: tcp
+      #- port: 3306 # remove comment if 3306 should be open from the internet
+      #  protocol: tcp
+    type: Public
+    dnsNameLabel: wordpresskrtest #DNS_NAME_LABEL # replace with your prefered fqdn prefix
+  volumes:
+  - name: datavolumemysql
+    azureFile: 
+      sharename: mysql2 #SHARE_NAME # replace with you Storage Account File Share name
+      storageAccountName: wordpresstor #STORAGE_ACCOUNT_NAME # replace with your Storage Account Name
+      storageAccountKey: STORAGE_ACCOUNT_KEY # replace with your Storage Account Key
+  - name: datavolumewordpress
+    azureFile: 
+      sharename: wordpress #SHARE_NAME # replace with you Storage Account File Share name
+      storageAccountName: wordpresstor #STORAGE_ACCOUNT_NAME # replace with your Storage Account Name
+      storageAccountKey: STORAGE_ACCOUNT_KEY # replace with your Storage Account Key
+tags: {}
+type: Microsoft.ContainerInstance/containerGroups
