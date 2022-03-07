@@ -47,6 +47,10 @@ properties:
       - mountPath: /var/www/html/wp-content
         name: datavolumewordpress # Name of the data volume (Azure File Share Volume)
   osType: Linux
+  imageRegistryCredentials: # Credentials to pull a private image
+  - server: CONTAINER_REGISTRY_URL
+    username: CONTAINER_REGISTRY_USERNAME
+    password: CONTAINER_REGISTRY_PASSWORD
   restartPolicy: OnFailure
   ipAddress:
     ports: 
